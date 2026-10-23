@@ -36,5 +36,7 @@
     "images/BT-TAB-342.webp": "3dd98b63885de7f3fa13d143bb734d9cf8d05e04436d65e091779fc144c86b29",
     "index.html": "279215b4703f60be6505dc25c5aba0af7242190e8edeb4d52fb49eefe9f125b3"
   },
-  "function_sha256": "98ffbb3871c27c0fa1e07b6e72e78e0d3a4754ce830e286af14a897643ff54f0"
+  "function_sha256_live": "98ffbb3871c27c0fa1e07b6e72e78e0d3a4754ce830e286af14a897643ff54f0",
+  "function_sha256": "5106c73fae614b88c61cf83833970440b6f1002f9b057ee3221e4d28021b919f",
+  "function_note": "The repo copy differs from the production function in one comment line only (a mailbox name was anonymised before the repo became public). The code is unchanged."
 }

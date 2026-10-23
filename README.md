@@ -31,7 +31,7 @@ So the GitHub token lives only in the browser storage of the staging address, ne
 
 ## Everyday use
 
-1. Open `https://staging--bejewelled-semolina-89f3ca.netlify.app/admin/`, choose **Sign In Using Access Token**, paste your token.
+1. Open `https://staging--bejewelled-semolina-89f3ca.netlify.app/admin/`, choose **Sign In Using Access Token**, paste your token (see *Create an editor token* below).
 2. Add or edit products. Every save is committed to the `staging` branch; Netlify rebuilds the staging preview (free, about a minute). Check it at the staging address.
 3. **Publishing is one person's job** (the owner): on GitHub open a pull request `staging` into `main` and merge it with **Create a merge commit**. That triggers one production deploy.
 4. After the merge: Netlify, Deploys, confirm the new deploy says **Published** and the live page changed.
@@ -40,25 +40,26 @@ Rules for products: SKU like `BT-AUD-204`; name up to 80 characters; the image i
 
 **Credits.** Netlify Free allows 300 credits a month. Each production deploy costs 15; previews, branch deploys, failed builds and rollbacks cost 0. At 0 credits the whole site and the quote form go offline until the monthly reset. Check the balance (Netlify, Usage and billing) before publishing, batch edits into one publish, and never push or merge to `main` for any other reason (a README change published to `main` costs 15 credits).
 
-## One-time setup (owner)
+## How it is set up
 
-GitHub (a free **organization**, because a fine-grained token cannot be used on a repository where you are only a collaborator):
-1. Create the organization; invite the second editor as a **member**.
-2. Create the repository in it and push this repo (`main` and `staging`). Make `staging` the **default branch** so tools that target "the default branch" can never publish by accident.
-3. Protect `main`: require a pull request, block force pushes and deletion, and do not let admins bypass. (Branch protection on a Free organization works for **public** repositories only; for a private one it needs the Team plan.)
-4. Organization settings, Personal access tokens: allow fine-grained tokens (approve each editor's token if approval is required).
-5. In `admin/config.yml` set `repo: <organization>/<repository>`.
+- **GitHub:** public repository `MzeinW/brightech-site` on the owner's account. `staging` is the default branch, so a tool that targets "the default branch" can never publish by accident. `main` is protected: changes arrive only by pull request, force pushes and deletion are blocked, and the rule applies to the owner too.
+- **Netlify:** the existing site is linked to the repository with a **read-only deploy key and a webhook**, so Netlify holds no GitHub token at all. Production branch `main`; branch deploys for `staging` only. Build settings come from `netlify.toml`. Because the Netlify GitHub app is not used, GitHub does not show Netlify build results on pull requests; look at the Netlify Deploys list instead. To stop all builds in an emergency: Netlify, Site configuration, Build and deploy, Build status, **Stop builds**.
+- **Email:** `ZOHO_SMTP_USER`, `ZOHO_SMTP_PASS` and `MAIL_TO` live in the Netlify site settings; the password is available to the production context only, so a staging build can never read it.
+- **Editor:** the owner, signing in with a fine-grained GitHub token (below).
 
-Netlify (signed in as the account that owns the site):
-1. Check the credit balance is at least 60.
-2. Deploys, **Lock to stop auto publishing** on the current deploy, so the first git build cannot go live unchecked.
-3. Site configuration, Build and deploy, Continuous deployment, **Link repository**, GitHub; grant the Netlify app access to this one repository only. Production branch `main`; branch deploys: individual branches, `staging`. Build settings come from `netlify.toml`.
-4. Let the first build finish (15 credits, unpublished). On that deploy check: Forms lists `quote` with 7 fields, Functions lists `submission-created`, "15 redirect rules processed", and its page equals the live page.
-5. **Publish deploy**, then **Unlock**. Send one real inquiry: a Forms entry appears, the function log says "notification sent", the email arrives. If any of the three fails, publish the previous deploy (free) and lock again.
-6. Environment variables: give `ZOHO_SMTP_USER`, `ZOHO_SMTP_PASS` and `MAIL_TO` the **Functions** scope only (remove Builds), production context only, so a staging build can never read them. Send another inquiry to confirm.
-7. After this the old Desktop folders must never deploy again: rename them and delete their `.netlify` folder.
+### Create an editor token
 
-Each editor: GitHub, Settings, Developer settings, Fine-grained tokens, **Generate new token**: resource owner = the organization; repository = this one only; permission **Contents: Read and write** only; expiration 90 days (set a reminder). A token is per person and per device.
+GitHub, Settings, Developer settings, Fine-grained tokens, **Generate new token**: resource owner = the repository owner; repository = `brightech-site` only; permission **Contents: Read and write** only; expiration 90 days (set a reminder). A token belongs to one person and is used on one device; delete it in GitHub if the device is lost.
+
+### Adding a second editor later
+
+A fine-grained token cannot be used on a repository where someone is only a collaborator, so the repository has to live in a GitHub organization first:
+
+1. Create a free organization; invite the editor as a **member**.
+2. Transfer the repository into it (repository Settings, Danger zone, Transfer). It stays public, so branch protection keeps working; check the default branch and the `main` protection afterwards.
+3. Tell Netlify the new path (the deploy key and webhook move with the repository): `netlify api updateSite` with `repo.repo_path` set to `<organization>/brightech-site`, or Site configuration, Build and deploy, Continuous deployment in the Netlify UI. Check the webhook still shows recent successful deliveries.
+4. Set `repo: <organization>/brightech-site` in `admin/config.yml`, publish that through a pull request, and have each editor create a token with the organization as resource owner.
+5. Keep publishing to one person: only the owner merges `staging` into `main`.
 
 ## Runbooks
 

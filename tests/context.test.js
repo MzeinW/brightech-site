@@ -48,7 +48,17 @@ test('branch-deploy (staging): backoffice + headers included, quote form inert, 
   assert.equal((html.match(/name="form-name"/g) || []).length, 1);
   assert.equal(cards(html), 23);
   assert.match(read(out, '_headers'), /^\/admin\/\*\s*$/m);
-  assert.ok(r.warnings.some((w) => w.includes('OWNER/REPO')), 'unconfigured repository is flagged');
+  assert.ok(!r.warnings.some((w) => w.includes('OWNER/REPO')), 'the repository is configured');
+  assert.match(read(out, 'admin/config.yml'), /repo: MzeinW\/brightech-site/);
+});
+
+test('an unconfigured backoffice (repo still OWNER/REPO) is flagged', () => {
+  const out = tmp(); done(out);
+  const adminDir = path.join(out, '..', path.basename(out) + '-admin'); done(adminDir);
+  fs.cpSync(path.join(ROOT, 'admin'), adminDir, { recursive: true });
+  fs.writeFileSync(path.join(adminDir, 'config.yml'), read(adminDir, 'config.yml').replace('MzeinW/brightech-site', 'OWNER/REPO'));
+  const r = build({ out, adminDir, context: 'branch-deploy' });
+  assert.ok(r.warnings.some((w) => w.includes('OWNER/REPO')));
 });
 
 test('deploy-preview behaves like branch-deploy', () => {

@@ -2,7 +2,7 @@
  * submission-created — Netlify runs this automatically after every VERIFIED
  * form submission (the filename is the trigger; no wiring needed).
  *
- * Sends the notification through the business's own Zoho SMTP, zein@ -> zein@.
+ * Sends the notification through the business's own Zoho SMTP, mailbox -> mailbox.
  * Netlify's built-in email notifications were silently swallowed by Zoho's
  * inbound filtering; same-domain mail submitted through Zoho's own server is
  * delivered to the local mailbox directly (proven: 250 Message received on a

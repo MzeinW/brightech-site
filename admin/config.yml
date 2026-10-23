@@ -6,7 +6,7 @@
 
 backend:
   name: github
-  repo: OWNER/REPO # replace with <GitHub organization>/<repository> once the repository exists
+  repo: MzeinW/brightech-site
   branch: staging
 
 media_folder: /images

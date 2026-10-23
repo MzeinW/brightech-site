@@ -56,7 +56,8 @@ test('the quote form is detectable by Netlify and has exactly one form-name fiel
   assert.ok(!html.includes('<!--@CATALOG_CARDS@-->'), 'marker must be replaced');
 });
 
-test('the form-email function is byte-identical to the one in production', () => {
+// The repo copy equals the production function except one anonymised comment line (see function_note in the manifest).
+test('the form-email function is unchanged (recorded hash; code identical to production)', () => {
   assert.equal(sha(fs.readFileSync(path.join(ROOT, 'netlify', 'functions', 'submission-created.js'))), manifest.function_sha256);
 });
 
