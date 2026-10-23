@@ -1,0 +1,8 @@
+{
+  "sku": "BT-TST-001",
+  "name": "TEST - delete me",
+  "category": "audio",
+  "image": "/images/BT-AUD-240.webp",
+  "visible": true,
+  "order": 9999
+}
