@@ -1,0 +1,11 @@
+@sveltia/cms 0.250.2
+source: https://unpkg.com/@sveltia/cms@0.250.2/dist/
+license: MIT (per package.json)
+Source maps are not vendored. Update with: python scripts/vendor-sveltia.py <version>
+
+sha256 of each file:
+d0e9044430006c5bb48f477501a5af465f0a6377d2fcd7495aa215b8b75aaee3  chunks/assets/rolldown-runtime-BWaJ3C7D.js
+906cbddd2fb9b91ccc5919837194e4d3d90e5fb4f1285f5346039d19f802d3e4  chunks/git.js
+709a4779022db236f08e6a5316d52ad6cf8453018d46a004906c242826c17ee6  chunks/qrcode.js
+55105ab1030a24f007904cbab670655ce1d948e8d5f1a237ebed1908871b44e9  chunks/react-dom.js
+38481b7c5861279aa05052a650b8bf29700ac559bb15fe1a3d97ecd756dbc44d  sveltia-cms.js

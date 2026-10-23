@@ -1,0 +1,81 @@
+# Sveltia CMS configuration for the BrighTech catalog backoffice.
+#
+# Saves go to the `staging` branch, which Netlify previews for free. Publishing = merging
+# `staging` into `main` on GitHub (that is the only step that costs Netlify credits).
+# Editors sign in with a fine-grained GitHub token limited to this one repository (Contents: read and write).
+
+backend:
+  name: github
+  repo: OWNER/REPO # replace with <GitHub organization>/<repository> once the repository exists
+  branch: staging
+
+media_folder: /images
+public_folder: /images
+
+media_libraries:
+  default:
+    config:
+      max_file_size: 10000000 # bytes; the build itself refuses any stored image over 1 MB
+      slugify_filename: true
+      transformations:
+        raster_image: # live images are 245-520 px wide and 1-20 KB
+          format: webp
+          quality: 82
+          width: 520
+          height: 520
+
+slug:
+  lowercase: false # keep BT-AUD-204.json, not bt-aud-204.json (the build accepts either)
+
+collections:
+  - name: products
+    label: Products
+    label_singular: Product
+    folder: /content/products
+    extension: json
+    format: json
+    create: true
+    delete: true
+    slug: '{{sku}}'
+    identifier_field: sku
+    summary: '{{sku}}  {{name}}'
+    sortable_fields: [order, sku, name, category]
+    fields:
+      - label: SKU
+        name: sku
+        widget: string
+        pattern:
+          - '^BT-[A-Z]{3}-[0-9]{3}$'
+          - 'Use the format BT-ABC-123: BT, a three-letter code, and three digits.'
+        hint: 'For example BT-AUD-204. It also names the product file, so it cannot be left blank.'
+      - label: Name
+        name: name
+        widget: string
+        maxlength: 80
+        hint: 'Shown on the product card, for example "JBL Tune 770NC".'
+      - label: Category
+        name: category
+        widget: select
+        options:
+          - { label: Audio, value: audio }
+          - { label: Computing, value: computing }
+          - { label: Gaming, value: gaming }
+          - { label: Streaming, value: streaming }
+          - { label: Smart home, value: smarthome }
+      - label: Image
+        name: image
+        widget: image
+        choose_url: false
+        hint: 'A clear product photo. It is converted to WebP and shrunk to fit 520 x 520 automatically.'
+      - label: Show on the website
+        name: visible
+        widget: boolean
+        default: true
+        hint: 'Switch off to hide a product without deleting it. Its image is not published while it is hidden.'
+      - label: Order
+        name: order
+        widget: number
+        value_type: int
+        min: 0
+        default: 9999
+        hint: 'Smaller numbers appear first. New products start at 9999, which puts them last.'

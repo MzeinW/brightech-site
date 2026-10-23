@@ -1,0 +1,12 @@
+# Written to dist/_headers only when the backoffice (/admin) is part of the build, i.e. NOT on production.
+# The admin page holds a GitHub token in the browser, so it must not be indexed, framed, or load outside scripts.
+/admin
+  X-Robots-Tag: noindex, nofollow
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://avatars.githubusercontent.com; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' blob: data: https://api.github.com https://www.githubstatus.com https://unpkg.com; media-src blob:; frame-src blob:; manifest-src blob:; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; form-action 'none'
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://avatars.githubusercontent.com; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' blob: data: https://api.github.com https://www.githubstatus.com https://unpkg.com; media-src blob:; frame-src blob:; manifest-src blob:; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; form-action 'none'

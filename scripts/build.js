@@ -145,8 +145,17 @@ function copyDir(src, dst, files) {
 }
 
 /** Structural checks on the finished dist/ (and the functions folder that ships beside it). Returns a list of problems. */
-function verifyOutput(out, root, functionsDir, expectedCards) {
+function verifyOutput(out, root, functionsDir, expectedCards, mode) {
+  mode = mode || { formLive: true, adminIncluded: false };
   const problems = [];
+  if (mode.adminIncluded) {
+    for (const f of ['admin/index.html', 'admin/config.yml', 'admin/vendor/sveltia-cms.js', '_headers']) if (!fs.existsSync(path.join(out, f))) problems.push('backoffice build is missing ' + f);
+    if (fs.existsSync(path.join(out, '_headers')) && !/^\/admin\/\*\s*$/m.test(fs.readFileSync(path.join(out, '_headers'), 'utf8'))) problems.push('_headers does not protect /admin/*');
+  } else {
+    // production must never serve the backoffice or its headers
+    if (fs.existsSync(path.join(out, 'admin'))) problems.push('the backoffice (admin/) must not be in a production build');
+    if (fs.existsSync(path.join(out, '_headers'))) problems.push('_headers must not be in a production build');
+  }
   for (const f of REQUIRED_OUTPUT) if (!fs.existsSync(path.join(out, f))) problems.push('missing from output: ' + f);
   if (fs.existsSync(path.join(out, '_redirects')) && !/^\s*[^#\s]/m.test(fs.readFileSync(path.join(out, '_redirects'), 'utf8'))) problems.push('_redirects has no rules');
   if (fs.existsSync(path.join(out, 'index.html'))) {
@@ -154,7 +163,10 @@ function verifyOutput(out, root, functionsDir, expectedCards) {
     const cards = (html.match(/<a class="prod reveal"/g) || []).length;
     if (cards !== expectedCards) problems.push('index.html has ' + cards + ' product cards, expected ' + expectedCards);
     if (html.includes(MARKER)) problems.push('index.html still contains the catalog marker');
-    if (!/<form [^>]*data-netlify=/.test(html)) problems.push('index.html: quote form lacks data-netlify');
+    const formLive = /<form [^>]*data-netlify=/.test(html);
+    if (mode.formLive && !formLive) problems.push('index.html: quote form lacks data-netlify');
+    if (!mode.formLive && formLive) problems.push('index.html: a preview build must not register the quote form (data-netlify still present)');
+    if ((html.match(/<form /g) || []).length !== 1) problems.push('index.html must contain exactly one form');
     const fn = (html.match(/name="form-name"/g) || []).length;
     if (fn !== 1) problems.push('index.html has ' + fn + ' form-name fields, expected exactly 1');
   }
@@ -179,9 +191,18 @@ function build(opts) {
     templatePath: path.join(root, 'src', 'index.template.html'),
     staticDir: path.join(root, 'src', 'static'),
     adminDir: path.join(root, 'admin'),
+    adminHeadersPath: path.join(root, 'src', 'admin.headers'),
     functionsDir: path.join(root, 'netlify', 'functions'),
     out: path.join(root, 'dist'),
   }, opts || {});
+  // Netlify sets CONTEXT to production | deploy-preview | branch-deploy. A plain local build (CONTEXT unset) behaves like
+  // production, so a local "netlify deploy --prod" can never publish the backoffice; set BT_INCLUDE_ADMIN=1 to preview it locally.
+  const ctx = o.context !== undefined ? o.context : process.env.CONTEXT;
+  const mode = {
+    context: ctx || 'local',
+    formLive: ctx === undefined || ctx === '' || ctx === 'production', // previews keep the quote form inert: no registered form, no stray leads
+    adminIncluded: o.includeAdmin !== undefined ? !!o.includeAdmin : (process.env.BT_INCLUDE_ADMIN === '1' || (!!ctx && ctx !== 'production')),
+  };
   const out = path.resolve(o.out);
   if (out === root || root.startsWith(out + path.sep) || out === path.parse(out).root) throw new BuildError(['refusing to clean output folder: ' + out]);
 
@@ -233,14 +254,27 @@ function build(opts) {
   }
   if (usedByShown.size) fs.mkdirSync(path.join(out, 'images'), { recursive: true });
   for (const f of [...usedByShown].sort()) { fs.copyFileSync(path.join(o.imagesDir, f), path.join(out, 'images', f)); files.push('images/' + f); }
-  if (fs.existsSync(o.adminDir)) copyDir(o.adminDir, path.join(out, 'admin'), files);
+  if (mode.adminIncluded) {
+    if (fs.existsSync(o.adminDir)) copyDir(o.adminDir, path.join(out, 'admin'), files);
+    if (fs.existsSync(o.adminHeadersPath)) {
+      if (fs.existsSync(path.join(out, '_headers'))) { fs.rmSync(out, { recursive: true, force: true }); throw new BuildError(['src/static/_headers already exists; merge the /admin rules into it instead']); }
+      fs.copyFileSync(o.adminHeadersPath, path.join(out, '_headers')); files.push('_headers');
+    }
+    const cfg = path.join(out, 'admin', 'config.yml');
+    if (fs.existsSync(cfg) && fs.readFileSync(cfg, 'utf8').includes('OWNER/REPO')) warnings.push('admin/config.yml still says OWNER/REPO: set the GitHub repository before editors can sign in');
+  }
 
-  const page = template.replace(MARKER, () => shown.map(renderCard).join('\n      ')); // function form: card text may contain "$&"
+  let page = template.replace(MARKER, () => shown.map(renderCard).join('\n      ')); // function form: card text may contain "$&"
+  if (!mode.formLive) {
+    const live = " data-netlify='true' data-netlify-honeypot='bot-field'";
+    if (page.split(live).length !== 2) { fs.rmSync(out, { recursive: true, force: true }); throw new BuildError(['cannot make the quote form inert: expected attributes' + live + ' exactly once']); }
+    page = page.replace(live, () => '');
+  }
   fs.writeFileSync(path.join(out, 'index.html'), Buffer.from(page, 'utf8'));
   files.push('index.html');
-  const problems = verifyOutput(out, root, path.resolve(o.functionsDir), shown.length);
+  const problems = verifyOutput(out, root, path.resolve(o.functionsDir), shown.length, mode);
   if (problems.length) { fs.rmSync(out, { recursive: true, force: true }); throw new BuildError(problems); }
-  return { total: products.length, visible: shown.length, hidden: hidden.map((p) => p.sku), perCategory, warnings, files: files.sort(), out };
+  return { total: products.length, visible: shown.length, hidden: hidden.map((p) => p.sku), perCategory, warnings, files: files.sort(), out, mode };
 }
 
 if (require.main === module) {
@@ -248,6 +282,7 @@ if (require.main === module) {
     const r = build();
     console.log('processed ' + r.total + ' product file(s): ' + r.visible + ' published, ' + r.hidden.length + ' hidden' + (r.hidden.length ? ' (' + r.hidden.join(', ') + ')' : ''));
     console.log('published per category: ' + Object.entries(r.perCategory).map(([c, n]) => c + ' ' + n).join(', '));
+    console.log('build context: ' + r.mode.context + ' (' + (r.mode.formLive ? 'quote form live' : 'quote form inert') + ', ' + (r.mode.adminIncluded ? 'backoffice /admin included' : 'no backoffice') + ')');
     for (const w of r.warnings) console.log('warning: ' + w);
     console.log('wrote ' + r.files.length + ' files to ' + r.out);
   } catch (e) {
