@@ -1,0 +1,16 @@
+# old Google Sites paths -> new single-page sections
+/home            /                 301
+/index.php       /                 301
+/shop            /#catalog         301
+/shop/*          /#catalog         301
+/products        /#catalog         301
+/products/*      /#catalog         301
+/catalog         /#catalog         301
+/brands          /#brands          301
+/about           /                 301
+/about-us        /                 301
+/contact         /#contact         301
+/contact-us      /#contact         301
+/locations       /#network         301
+/privacy         /privacy.html     301
+/terms           /terms.html       301

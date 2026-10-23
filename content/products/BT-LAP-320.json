@@ -1,0 +1,8 @@
+{
+  "sku": "BT-LAP-320",
+  "name": "Apple MacBook Air",
+  "category": "computing",
+  "image": "/images/BT-LAP-320.webp",
+  "visible": true,
+  "order": 90
+}

@@ -1,0 +1,8 @@
+{
+  "sku": "BT-STR-404",
+  "name": "Fire TV Stick 4K Max",
+  "category": "streaming",
+  "image": "/images/BT-STR-404.webp",
+  "visible": true,
+  "order": 70
+}

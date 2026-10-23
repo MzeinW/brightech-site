@@ -1,0 +1,8 @@
+{
+  "sku": "BT-AUD-208",
+  "name": "Apple AirPods Max",
+  "category": "audio",
+  "image": "/images/BT-AUD-208.webp",
+  "visible": true,
+  "order": 120
+}
