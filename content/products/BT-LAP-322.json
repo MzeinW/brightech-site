@@ -1,0 +1,8 @@
+{
+  "sku": "BT-LAP-322",
+  "name": "Apple MacBook Air 13-inch (M5)",
+  "category": "computing",
+  "image": "/images/BT-LAP-322.webp",
+  "visible": true,
+  "order": 50
+}

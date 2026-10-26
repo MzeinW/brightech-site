@@ -1,0 +1,8 @@
+{
+  "sku": "BT-SMH-712",
+  "name": "Amazon Echo Dot (5th Gen)",
+  "category": "smarthome",
+  "image": "/images/BT-SMH-712.webp",
+  "visible": true,
+  "order": 90
+}

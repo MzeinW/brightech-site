@@ -1,0 +1,8 @@
+{
+  "sku": "BT-AUD-244",
+  "name": "Apple AirPods 5",
+  "category": "audio",
+  "image": "/images/BT-AUD-244.webp",
+  "visible": true,
+  "order": 10
+}
