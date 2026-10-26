@@ -8,14 +8,17 @@ const path = require('path');
 const { build, loadProducts, renderCard, duplicateSkus, BuildError } = require('../scripts/build.js');
 
 const ROOT = path.resolve(__dirname, '..');
-const IMAGES = path.join(ROOT, 'images');
+// The validation tests run against a frozen copy of the original 23-product catalog, not the live content,
+// so they keep working whatever products the shop lists.
+const SEED = path.join(ROOT, 'tests', 'fixtures', 'seed');
+const IMAGES = path.join(SEED, 'images');
 
-/** copy the seed content to a temp folder, let the test change it, return the paths */
+/** copy the seed fixture to a temp folder, let the test change it, return the paths */
 function sandbox(mutate) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bt-val-'));
   const content = path.join(dir, 'products');
   fs.mkdirSync(content);
-  for (const f of fs.readdirSync(path.join(ROOT, 'content', 'products'))) fs.copyFileSync(path.join(ROOT, 'content', 'products', f), path.join(content, f));
+  for (const f of fs.readdirSync(path.join(SEED, 'products'))) fs.copyFileSync(path.join(SEED, 'products', f), path.join(content, f));
   const api = {
     dir, content,
     read: (sku) => JSON.parse(fs.readFileSync(path.join(content, sku + '.json'), 'utf8')),

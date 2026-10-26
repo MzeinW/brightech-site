@@ -1,0 +1,8 @@
+{
+  "sku": "BT-SMH-705",
+  "name": "Google Nest Doorbell",
+  "category": "smarthome",
+  "image": "/images/BT-SMH-705.webp",
+  "visible": true,
+  "order": 230
+}

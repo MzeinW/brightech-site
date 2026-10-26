@@ -1,0 +1,8 @@
+{
+  "sku": "BT-SMH-702",
+  "name": "Amazon Echo Pop",
+  "category": "smarthome",
+  "image": "/images/BT-SMH-702.webp",
+  "visible": true,
+  "order": 220
+}

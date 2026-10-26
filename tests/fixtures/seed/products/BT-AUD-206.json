@@ -1,0 +1,8 @@
+{
+  "sku": "BT-AUD-206",
+  "name": "Apple AirPods Pro",
+  "category": "audio",
+  "image": "/images/BT-AUD-206.webp",
+  "visible": true,
+  "order": 110
+}
