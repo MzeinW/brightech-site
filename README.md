@@ -15,7 +15,7 @@ Static site for https://brightechdistribution.com on Netlify. Products are edite
 | `scripts/build.js` | Builds `dist/`. Any invalid product, or a structurally wrong result, fails the build and nothing is published. |
 | `scripts/serve.js` | Local preview server with Netlify-style headers. |
 | `netlify/functions/submission-created.js` | Emails each quote-form inquiry through Zoho. Keep it byte-identical unless fixing it on purpose. |
-| `tests/` | `node --test`: the seed content rebuilds today's live page byte-for-byte; bad data is rejected; build modes. |
+| `tests/` | `node --test`: the frozen original catalog (`tests/fixtures/seed`) rebuilds the reviewed page byte-for-byte (`node tests/update-golden.js` after an intentional template change); bad data is rejected; build modes; the live catalog builds cleanly with 4:3 pictures and the hero strip names only listed products. |
 
 ## Two kinds of build
 

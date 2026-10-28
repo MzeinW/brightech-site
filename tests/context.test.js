@@ -6,9 +6,12 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { build, verifyOutput, BuildError } = require('../scripts/build.js');
+const { build: realBuild, verifyOutput, BuildError } = require('../scripts/build.js');
 
 const ROOT = path.resolve(__dirname, '..');
+// Build-mode tests use the frozen 23-product seed catalog, so they do not depend on what the shop currently lists.
+const SEED = path.join(ROOT, 'tests', 'fixtures', 'seed');
+const build = (o) => realBuild({ contentDir: path.join(SEED, 'products'), imagesDir: path.join(SEED, 'images'), ...o });
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'bt-ctx-'));
 const read = (dir, f) => fs.readFileSync(path.join(dir, f), 'utf8');
 const exists = (dir, f) => fs.existsSync(path.join(dir, f));
